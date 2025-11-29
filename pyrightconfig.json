@@ -1,0 +1,11 @@
+{
+    "typeCheckingMode": "standard",
+    "ignore": [
+        "**/pythonnet/**",
+        "**/clr/**",
+        "**/System/**",
+        // "**/lib/UVToolsBootstrap/**",
+        // "**/lib/UVLib/**"
+    ],
+    "stubPath": "typings"
+}
