@@ -17,25 +17,28 @@ def minimize_layers(layers: np.typing.NDArray, margin: int = 5) -> cp.typing.NDA
     bbox = (slice(None, None), slice(x_i[0], x_i[-1]), slice(y_i[0], y_i[-1]))
     cropped = layers[bbox]
 
-    return cp.pad(cp.asarray(cropped), ((0, 0), (margin, margin), (margin, margin)))
+    return cp.pad(
+        cp.asarray(cropped, dtype=cp.int16),
+        ((0, 1), (margin, margin), (margin, margin)),
+    )
 
 
 def maximize_layers(min_layers: cp.typing.NDArray, full_footprint) -> np.typing.NDArray:
 
+    cp.clip(min_layers, 0, 255, out=min_layers)
     min_layers_np = min_layers.get()
     min_z, min_x, min_y = min_layers_np.shape
 
     if len(full_footprint) > 2:
         full_footprint = full_footprint[1:3]
-    output_footprint = [min_layers.shape[0]] + list(full_footprint)
-    output = np.zeros(output_footprint, dtype=min_layers_np.dtype)
+    output_footprint = [min_z] + list(full_footprint)
+    output = np.zeros(output_footprint, dtype=np.uint8)
 
     x_pad_total, y_pad_total = np.subtract(
-        np.array(full_footprint), np.array(min_layers.shape[1:])
+        np.array(full_footprint), np.array([min_x, min_y])
     )
     x_pad = (x_pad_total // 2, x_pad_total - x_pad_total // 2)
     y_pad = (y_pad_total // 2, y_pad_total - y_pad_total // 2)
-    z_pad = (0, 0)
 
     output[:min_z, x_pad[0] : x_pad[0] + min_x, y_pad[0] : y_pad[0] + min_y] = (
         min_layers_np

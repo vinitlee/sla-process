@@ -14,8 +14,6 @@ from line_profiler import profile
 import matplotlib.pyplot as plt
 
 # %%
-times = []
-times.append(time.time())
 
 DEVICE_TEMPLATE_PATH = Path(r"data\templates\PSM8KS.prz")
 DEVICE_SUFFIX = DEVICE_TEMPLATE_PATH.suffix
@@ -36,22 +34,16 @@ def main():
     output_path = sample_path.with_suffix(".mod" + DEVICE_SUFFIX)
 
     print("Divvying out layers...")
-    times.append(time.time())
     original_shape = sample_file.layers.shape
     layers = sla.minimize_layers(sample_file.layers)
 
     bottom_layers = layers[: sample_file.bottom_layer_count]
     reg_layers = layers[sample_file.bottom_layer_count :]
     del sample_file
-    times.append(time.time())
-    print(f"Took {times[-1] - times[-2]}s to execute")
 
     print("Computing masks")
     model = sla.mask.model(layers)
-    times.append(time.time())
-    skin = sla.mask.skin(layers, thickness=(1, 1, 1))
-    times.append(time.time())
-    print(f"Took {times[-1] - times[-2]}s to execute")
+    skin = sla.mask.skin(layers, thickness=(2, 2, 2))
     reg_skin = skin[len(bottom_layers) :]
 
     print("Applying noise")
@@ -73,9 +65,6 @@ def main():
     print(f"Saving to {output_path}...")
     output_file.layers = layers
     output_file.save(output_path)
-
-    times.append(time.time())
-    print(f"Total time: {times[-1] - times[0]}")
 
 
 if __name__ == "__main__":

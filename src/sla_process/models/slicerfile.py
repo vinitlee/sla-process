@@ -205,7 +205,6 @@ class SlicerFile:
                 temp_im = self.resize_to_fit(temp_im, thumbnail.shape)
                 self.thumbnails[i] = temp_im
 
-    @profile
     def unpack_layers(self):
         """
         Unpack the layers from the UVTools file into 3D numpy array.
@@ -222,7 +221,6 @@ class SlicerFile:
         if self.layers.size == 0:
             raise RuntimeError("No layers found in the file")
 
-    @profile
     def pack_layers(self):
         """
         Pack the layers back to the UVTools file.
@@ -243,7 +241,6 @@ class SlicerFile:
 
         self.UVObj.RebuildLayersProperties()
 
-    @profile
     def make_layer(self, layer_mat=None):
         """
         Create a new layer object.
@@ -255,9 +252,8 @@ class SlicerFile:
             new_layer.LayerMat = layer_mat
         return new_layer
 
-    @profile
     @staticmethod
-    def mat_to_np(mat, dtype=np.int16):
+    def mat_to_np(mat):
         """
         Convert an Emgu CV Mat object to a NumPy array.
 
@@ -286,12 +282,8 @@ class SlicerFile:
             else raw_bytes.reshape((height, width))
         )
 
-        # Cast to more forgiving type
-        raw_image = raw_image.astype(dtype)
-
         return raw_image
 
-    @profile
     @staticmethod
     def np_to_mat(numpy_array: np.typing.NDArray):
         """
@@ -300,9 +292,9 @@ class SlicerFile:
         :param numpy_array: The NumPy array containing the image data.
         :return: An Emgu.CV.Mat object.
         """
-        if numpy_array.dtype not in [np.uint8, np.int16]:
+        if numpy_array.dtype not in [np.uint8]:
             raise ValueError(f"NumPy array <{numpy_array.dtype}> not of valid type")
-        numpy_array = np.clip(numpy_array, 0, 255).astype(np.uint8)
+        # numpy_array = np.clip(numpy_array, 0, 255).astype(np.uint8)
 
         # Handle grayscale (2D) and RGB (3D) images
         if len(numpy_array.shape) == 2:  # Grayscale
@@ -310,8 +302,6 @@ class SlicerFile:
             channels = 1
         elif len(numpy_array.shape) == 3 and numpy_array.shape[2] == 3:  # RGB
             height, width, channels = numpy_array.shape
-            # Note: OpenCV uses BGR format, but Emgu CV uses RGB format. If needed, you can convert it here.
-            # numpy_array = cv2.cvtColor(numpy_array, cv2.COLOR_BGR2RGB)
         else:
             raise ValueError("NumPy array must be a 2D (grayscale) or 3D (RGB) array.")
 
