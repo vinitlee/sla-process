@@ -205,6 +205,7 @@ class SlicerFile:
                 temp_im = self.resize_to_fit(temp_im, thumbnail.shape)
                 self.thumbnails[i] = temp_im
 
+    @profile
     def unpack_layers(self):
         """
         Unpack the layers from the UVTools file into 3D numpy array.
@@ -221,6 +222,7 @@ class SlicerFile:
         if self.layers.size == 0:
             raise RuntimeError("No layers found in the file")
 
+    @profile
     def pack_layers(self):
         """
         Pack the layers back to the UVTools file.
@@ -235,12 +237,13 @@ class SlicerFile:
             desc=f"Packing {len(self.layers)} Layers",
             unit="layers",
         ):
-            # print(f"Packing layer {i + 1}/{len(self.layers)}")
-            new_layer = self.make_layer(layer_mat=SlicerFile.np_to_mat(layer))
+            layer_mat = SlicerFile.np_to_mat(layer)
+            new_layer = self.make_layer(layer_mat=layer_mat)
             self.UVObj.SetLayer(i, new_layer)
 
         self.UVObj.RebuildLayersProperties()
 
+    @profile
     def make_layer(self, layer_mat=None):
         """
         Create a new layer object.
@@ -252,6 +255,7 @@ class SlicerFile:
             new_layer.LayerMat = layer_mat
         return new_layer
 
+    @profile
     @staticmethod
     def mat_to_np(mat, dtype=np.int16):
         """
@@ -287,6 +291,7 @@ class SlicerFile:
 
         return raw_image
 
+    @profile
     @staticmethod
     def np_to_mat(numpy_array: np.typing.NDArray):
         """

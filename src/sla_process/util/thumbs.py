@@ -47,8 +47,8 @@ def fit_thumbnail(
     return framed
 
 
-def layer_heatmap(layers: np.typing.NDArray, color_map=cv2.COLORMAP_BONE):
-    heatmap = np.sum(layers, axis=0, dtype=float)
+def layer_heatmap(layers: cp.typing.NDArray, color_map=cv2.COLORMAP_BONE):
+    heatmap = cp.sum(layers, axis=0, dtype=float).get()
     heatmap /= len(layers)
     heatmap = np.clip(heatmap, 0, 255).astype(np.uint8)
     heatmap_colored = cv2.applyColorMap(heatmap, color_map)

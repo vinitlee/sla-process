@@ -20,16 +20,25 @@ output_path = sample_path.with_suffix(".mod" + sample_path.suffix)
 
 # %%
 
-layers = sample_file.layers[:]
+footprint = sample_file.layers.shape
+
+t0 = time.time()
+layers = sla.minimize_layers(sample_file.layers)
+print(time.time() - t0)
+
+t0 = time.time()
+layers = sla.maximize_layers(layers, footprint)
+print(time.time() - t0)
+
 bottom_layers = layers[: sample_file.bottom_layer_count]
 top_layers = layers[sample_file.bottom_layer_count :]
 # %%
+
+# %%
 # model = sla.mask.model(layers)
-t0 = time.time()
-skin = sla.mask.skin(layers, approach="cp_kernel", thickness=(2, 2, 2))
-print(time.time() - t0)
-plt.imshow(skin[30, 170:300, 170:300])
-plt.show()
+skin = sla.mask.skin(layers, thickness=(2, 2, 2))
+# plt.imshow(skin[30, 170:300, 170:300].get())
+# plt.show()
 
 # skin = sla.mask.skin(layers, thickness=(2, 4, 1))
 # plt.imshow(skin[30, 170:300, 170:300])

@@ -25,7 +25,6 @@ layers = None
 default_path = Path(r"c:\Users\vinitlee\Desktop\bottom_draft_test.sl1")
 
 
-@profile
 def main():
     global layers
     sample_path = Path(sys.argv[1])
@@ -50,7 +49,7 @@ def main():
     print("Computing masks")
     model = sla.mask.model(layers)
     times.append(time.time())
-    skin = sla.mask.skin(layers, thickness=(1, 1, 1), approach="cp_kernel")
+    skin = sla.mask.skin(layers, thickness=(1, 1, 1))
     times.append(time.time())
     print(f"Took {times[-1] - times[-2]}s to execute")
     reg_skin = skin[len(bottom_layers) :]

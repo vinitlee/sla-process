@@ -4,19 +4,19 @@ import cupy as cp
 import sla_process.core.masking as mask
 
 
-def noise(shape, a_min=-1, a_max=1):
+def noise(shape, a_min=-1, a_max=1) -> cp.typing.NDArray:
     gen = cp.random.random(shape)
     gen *= a_max - a_min
     gen += a_min
-    return gen.get()
+    return gen
 
 
-def int_noise(shape, a_min=-128, a_max=128):
+def int_noise(shape, a_min=-128, a_max=128) -> cp.typing.NDArray:
     gen = cp.random.random(shape)
     gen *= a_max - a_min
     gen += a_min
     gen = gen.astype(np.int16)
-    return gen.get()
+    return gen
 
 
 def erosion_noise(layers: np.typing.NDArray, depth: int, period: float):
@@ -38,5 +38,6 @@ def weighted_additive_noise(
         raise Exception("All arrays must be of the same shape.")
 
 
-def displace_with_noise(layers: np.typing.NDArray) -> np.typing.NDArray:
-    ndi.map_coordinates()
+def displace_with_noise(layers: cp.typing.NDArray) -> cp.typing.NDArray:
+    # ndi.map_coordinates()
+    pass

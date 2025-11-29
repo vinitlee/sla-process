@@ -1,40 +1,47 @@
 import scipy.ndimage as ndi
 import numpy as np
 import cupy as cp
+from line_profiler import profile
 
 
-def minimize_layers(layers: np.typing.NDArray, margin: int = 5) -> np.typing.NDArray:
-    if not np.any(layers):
-        print("Warning: layers are blank")
-        return layers
-
-    nonzero_z = np.any(layers, axis=(1, 2))
+def minimize_layers(layers: np.typing.NDArray, margin: int = 5) -> cp.typing.NDArray:
+    """
+    Takes large input in np and outputs in cp in order to avoid running out of VRAM
+    """
     nonzero_x = np.any(layers, axis=(0, 2))
     nonzero_y = np.any(layers, axis=(0, 1))
 
-    z_i = np.where(nonzero_z)[0]
     x_i = np.where(nonzero_x)[0]
     y_i = np.where(nonzero_y)[0]
 
-    bbox = (slice(z_i[0], z_i[-1]), slice(x_i[0], x_i[-1]), slice(y_i[0], y_i[-1]))
+    bbox = (slice(None, None), slice(x_i[0], x_i[-1]), slice(y_i[0], y_i[-1]))
+    cropped = layers[bbox]
 
-    return np.pad(layers[bbox], ((0, 0), (margin, margin), (margin, margin)))
+    return cp.pad(cp.asarray(cropped), ((0, 0), (margin, margin), (margin, margin)))
 
 
-def maximize_layers(
-    min_layers: np.typing.NDArray, full_footprint: np.typing.ArrayLike
-) -> np.typing.NDArray:
+def maximize_layers(min_layers: cp.typing.NDArray, full_footprint) -> np.typing.NDArray:
 
-    full_footprint = np.array(full_footprint)
+    min_layers_np = min_layers.get()
+    min_z, min_x, min_y = min_layers_np.shape
+
     if len(full_footprint) > 2:
         full_footprint = full_footprint[1:3]
+    output_footprint = [min_layers.shape[0]] + list(full_footprint)
+    output = np.zeros(output_footprint, dtype=min_layers_np.dtype)
 
-    x_pad_total, y_pad_total = np.subtract(full_footprint, min_layers.shape[1:])
+    x_pad_total, y_pad_total = np.subtract(
+        np.array(full_footprint), np.array(min_layers.shape[1:])
+    )
     x_pad = (x_pad_total // 2, x_pad_total - x_pad_total // 2)
     y_pad = (y_pad_total // 2, y_pad_total - y_pad_total // 2)
     z_pad = (0, 0)
 
-    return np.pad(min_layers, (z_pad, x_pad, y_pad))
+    output[:min_z, x_pad[0] : x_pad[0] + min_x, y_pad[0] : y_pad[0] + min_y] = (
+        min_layers_np
+    )
+
+    return output
 
 
 def collate_layers(
