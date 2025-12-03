@@ -44,7 +44,7 @@ def beveled_elephants_foot(
 
 
 def skeleton_foot(
-    layers: np.typing.NDArray,
+    layers: cp.typing.NDArray,
     margin: int,
     thickness: int = 2,
     num_bottom_layers: int | None = None,

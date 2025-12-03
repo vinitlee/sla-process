@@ -61,5 +61,30 @@ def collate_layers(
     pass  # TODO: Implement
 
 
-def label_layers(layers: np.typing.NDArray, label: str = "00000", size=100):
+def label_layers(layers: cp.typing.NDArray, label: str = "00000", size=100):
     pass  # TODO: Implement
+
+
+def z_silhouette(layers: cp.typing.NDArray) -> cp.typing.NDArray[bool]:
+    return cp.any(layers, axis=0)
+
+
+def paste(
+    source: cp.typing.NDArray, target: cp.typing.NDArray, location=(0, 0)
+) -> cp.typing.NDArray:
+    pass
+
+
+def process_array(
+    source: cp.typing.NDArray,
+    copies: tuple[int, int] = (1, 1),
+    processing_fns=[lambda x: x],
+    label=None,
+):
+    """
+    Process a source layer stack using each processing function and return a layer stack containing all the processed stacks side by side
+    copies defines the output footprint shape
+    processing_fns defines the f(in: cp.typing.NDArray) -> cp.typing.NDArray methods that will be used to generate the copies
+    if copies[0]*copies[1] and len(processing_fns) are different, limit to the lesser of the two, which will end up with unfilled spots in the grid
+    """
+    pass
