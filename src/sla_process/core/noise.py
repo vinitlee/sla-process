@@ -1,7 +1,9 @@
 import scipy.ndimage as ndi
+import cupyx.scipy.ndimage as cndi
 import numpy as np
 import cupy as cp
 import sla_process.core.masking as mask
+import sla_process.util.math as sla_math
 
 
 def noise(shape, a_min=-1, a_max=1) -> cp.typing.NDArray:
@@ -41,3 +43,20 @@ def weighted_additive_noise(
 def displace_with_noise(layers: cp.typing.NDArray) -> cp.typing.NDArray:
     # ndi.map_coordinates()
     pass
+
+
+def noisy_greys(
+    layers: cp.typing.NDArray, amp: int = 20, min_th: int = 0, max_th: int = 250
+):
+    """
+    min_th and max_th are non-inclusive
+    """
+
+    mask = (layers > min_th) & (layers < max_th)
+    layers[mask] = sla_math.pingpong(
+        layers[mask] + int_noise(layers[mask].shape, -amp // 2, amp // 2),
+        min_th + 1,
+        max_th - 1,
+    )
+
+    return layers

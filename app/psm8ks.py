@@ -7,6 +7,8 @@ import time
 
 importlib.reload(sla)
 
+import gc
+
 import sys
 
 # Dev
@@ -31,7 +33,7 @@ def main():
     sample_file = sla.SlicerFile(sample_path)
     print("Loading template...")
     output_file = sla.SlicerFile(DEVICE_TEMPLATE_PATH)
-    output_path = sample_path.with_suffix(".mod" + DEVICE_SUFFIX)
+    output_path = sample_path.with_suffix(".8ks" + DEVICE_SUFFIX)
 
     print("Divvying out layers...")
     original_shape = sample_file.layers.shape
@@ -42,7 +44,6 @@ def main():
     del sample_file
 
     print("Computing masks")
-    model = sla.mask.model(layers)
     skin = sla.mask.skin(layers, thickness=(2, 2, 2))
     reg_skin = skin[len(bottom_layers) :]
 
@@ -50,9 +51,6 @@ def main():
     reg_layers[reg_skin] += sla.int_noise(reg_layers[reg_skin].shape, -135, 0)
 
     print("Applying elephant's foot correction...")
-    # bottom_layers[:] = sla.beveled_elephants_foot(
-    #     bottom_layers, 4, sample_file.bottom_layer_count
-    # )
     bottom_layers[:] = sla.elephants_foot(bottom_layers, 4)
 
     print("Updating thumbnail...")
