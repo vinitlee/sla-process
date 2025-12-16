@@ -24,13 +24,10 @@ DEVICE_SUFFIX = DEVICE_TEMPLATE_PATH.suffix
 
 layers = None
 
-default_path = Path(r"c:\Users\vinitlee\Desktop\bottom_draft_test.sl1")
-
 
 def main():
     global layers
     sample_path = Path(sys.argv[1])
-    # sample_path = default_path
     print(f"Loading {sample_path}...")
     sample_file = sla.SlicerFile(sample_path)
     print("Loading template...")

@@ -61,3 +61,14 @@ def chunk_generator(
         )
         # Also put margins in, defaulting to fill
         yield chunk_buf[buffer_data_slice], chunk_slice, core_slice
+
+
+def n_chunks(
+    layers: np.typing.NDArray | cp.typing.NDArray,
+    chunk_size: tuple[int, int, int] = (128, 128, 128),
+):
+    z, x, y = layers.shape
+    cz, cx, cy = np.ceil(np.divide([z, x, y], chunk_size)).astype(int)
+    total = cz * cx * cy
+
+    return total
