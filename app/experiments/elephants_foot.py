@@ -58,7 +58,7 @@ def main():
         chunk[skin] += sla.int_noise(chunk[skin].shape, -135, 0)
 
         chunk = cp.clip(chunk, 0, 255)
-        layers[chunk_slice] = chunk[core_slice].get()
+        layers[chunk_slice] = chunk[core_slice].get()  # type: ignore
 
     print("Applying elephant's foot correction...")
     bottom_layers[:] = sla.elephants_foot(bottom_layers_gpu, 4).get()
