@@ -25,8 +25,8 @@ def erosion_noise(layers: np.typing.NDArray, depth: int, period: float):
     temp_layers = layers.copy()
 
     model_mask = mask.model(layers)
-    skin_mask = mask.skin(layers, 1)
-    band_mask = mask.skin(layers, depth)
+    skin_mask = mask.skin(layers, (1, 1, 1))
+    band_mask = mask.skin(layers, (depth, depth, depth))
 
     noise_src = noise(temp_layers[skin_mask].shape, 0, 1)
     noise_src = np.where(noise_src > 1 / period, 255, 0)
@@ -43,6 +43,20 @@ def weighted_additive_noise(
 def displace_with_noise(layers: cp.typing.NDArray) -> cp.typing.NDArray:
     # ndi.map_coordinates()
     pass
+
+
+def noisy(layers: cp.typing.NDArray, amp: int = 20):
+    """
+    min_th and max_th are non-inclusive
+    """
+
+    layers[:] = sla_math.pingpong(
+        layers[:] + int_noise(layers[:].shape, -amp // 2, amp // 2),
+        0,
+        255,
+    )
+
+    return layers
 
 
 def noisy_greys(
